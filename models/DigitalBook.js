@@ -1,21 +1,13 @@
 /**
- * Book.js
- * Represents a physical book in the Library Management System.
- * This class serves as the parent class for DigitalBook.
+ * DigitalBook.js
+ * Represents a digital book in the Library Management System.
+ * Extends Book with digital-specific functionality.
  */
 
-export default class Book {
-  /**
-   * Creates a new Book.
-   *
-   * @param {string} isbn - Unique ISBN number.
-   * @param {string} title - Book title.
-   * @param {string} author - Book author.
-   * @param {number} year - Publication year.
-   * @param {number} totalCopies - Number of copies owned by the library.
-   * @param {string} category - Book category.
-   * @param {string} coverImage - Path to the book cover image.
-   */
+import Book from "./Book.js";
+
+export default class DigitalBook extends Book {
+
   constructor(
     isbn,
     title,
@@ -23,239 +15,150 @@ export default class Book {
     year,
     totalCopies = 1,
     category = "General",
-    coverImage = "images/default-book.jpg"
+    coverImage = "images/default-book.jpg",
+    fileFormat = "PDF",
+    fileSize = 0
   ) {
-    // Validate ISBN
-    if (typeof isbn !== "string" || !isbn.trim()) {
-      throw new Error("ISBN must be a non-empty string.");
-    }
 
-    // Validate title
-    if (typeof title !== "string" || !title.trim()) {
-      throw new Error("Title must be a non-empty string.");
-    }
+    super(
+      isbn,
+      title,
+      author,
+      year,
+      totalCopies,
+      category,
+      coverImage
+    );
 
-    // Validate author
-    if (typeof author !== "string" || !author.trim()) {
-      throw new Error("Author must be a non-empty string.");
-    }
 
-    // Validate publication year
     if (
-      typeof year !== "number" ||
-      Number.isNaN(year) ||
-      year < 0
+      typeof fileSize !== "number" ||
+      Number.isNaN(fileSize) ||
+      fileSize < 0
     ) {
-      throw new Error("Year must be a valid number.");
+      throw new Error(
+        "File size must be a valid number."
+      );
     }
-
-    // Validate number of copies
+ 
     if (
-      typeof totalCopies !== "number" ||
-      Number.isNaN(totalCopies) ||
-      totalCopies < 1
+      typeof fileFormat !== "string" ||
+      !fileFormat.trim()
     ) {
-      throw new Error("Total copies must be at least 1.");
+      throw new Error(
+        "File format must be a non-empty string."
+      );
     }
+    
+    this.fileFormat = fileFormat.trim();
+    this.fileSize = fileSize;
 
-    // Validate category
-    if (typeof category !== "string" || !category.trim()) {
-      throw new Error("Category must be a non-empty string.");
-    }
-
-    // Validate cover image
-    if (typeof coverImage !== "string") {
-      throw new Error("Cover image must be a string.");
-    }
-
-    this.isbn = isbn.trim();
-    this.title = title.trim();
-    this.author = author.trim();
-    this.year = year;
-    this.category = category.trim();
-    this.coverImage = coverImage.trim();
-
-    this.totalCopies = totalCopies;
-    this.availableCopies = totalCopies;
-
-    // Stores IDs of members currently borrowing the book
-    this.borrowedBy = [];
+    this.downloadCount = 0;
   }
 
+
+
   /**
-   * Returns true if the book has at least one available copy.
+   * Downloads the digital book.
    *
    * @returns {boolean}
    */
-  get isAvailable() {
-    return this.availableCopies > 0;
+  download() {
+
+    this.downloadCount++;
+
+    return true;
   }
 
-  /**
-   * Returns the availability status.
-   *
-   * @returns {string}
-   */
-  getStatus() {
-    return this.isAvailable ? "Available" : "Unavailable";
-  }
+
 
   /**
-   * Borrows a copy of the book.
+   * Digital books do not reduce availability.
    *
-   * @param {string} memberId - Member borrowing the book.
+   * @param {string} memberId
    * @returns {boolean}
    */
   checkOut(memberId) {
-    if (typeof memberId !== "string" || !memberId.trim()) {
-      throw new Error("A valid member ID is required.");
+
+    if (
+      typeof memberId !== "string" ||
+      !memberId.trim()
+    ) {
+      throw new Error(
+        "A valid member ID is required."
+      );
     }
 
-    if (!this.isAvailable) {
-      return false;
-    }
 
-    this.borrowedBy.push(memberId.trim());
-    this.availableCopies--;
+    this.download();
+
+
+    this.borrowedBy.push(
+      memberId.trim()
+    );
+
 
     return true;
   }
 
+
+
   /**
-   * Returns a borrowed copy of the book.
+   * Digital books do not need returning.
    *
-   * @param {string} memberId - Member returning the book.
    * @returns {boolean}
    */
-  returnBook(memberId) {
-    if (typeof memberId !== "string" || !memberId.trim()) {
-      return false;
-    }
-
-    const memberIndex = this.borrowedBy.indexOf(memberId.trim());
-
-    if (memberIndex === -1) {
-      return false;
-    }
-
-    this.borrowedBy.splice(memberIndex, 1);
-    this.availableCopies++;
-
-    return true;
+returnBook(memberId) {
+  if (
+    typeof memberId !== "string" ||
+    !memberId.trim()
+  ) {
+    return false;
   }
 
-  /**
-   * Adds copies of the book to the library.
-   *
-   * @param {number} amount - Number of copies to add.
-   */
-  addCopies(amount) {
-    if (
-      typeof amount !== "number" ||
-      Number.isNaN(amount) ||
-      amount < 1
-    ) {
-      throw new Error("Amount must be greater than zero.");
-    }
+  const index = this.borrowedBy.indexOf(
+    memberId.trim()
+  );
 
-    this.totalCopies += amount;
-    this.availableCopies += amount;
+  if (index !== -1) {
+    this.borrowedBy.splice(index, 1);
   }
 
-  /**
-   * Removes copies of the book from the library.
-   *
-   * @param {number} amount - Number of copies to remove.
-   */
-  removeCopies(amount) {
-    if (
-      typeof amount !== "number" ||
-      Number.isNaN(amount) ||
-      amount < 1
-    ) {
-      throw new Error("Amount must be greater than zero.");
-    }
+  return true;
+}
 
-    if (this.totalCopies - amount < this.borrowedBy.length) {
-      throw new Error("Cannot remove borrowed copies.");
-    }
 
-    this.totalCopies -= amount;
-
-    if (this.availableCopies > this.totalCopies) {
-      this.availableCopies = this.totalCopies;
-    }
-  }
-
-  /**
-   * Updates the book category.
-   *
-   * @param {string} category - New book category.
-   */
-  updateCategory(category) {
-    if (typeof category !== "string" || !category.trim()) {
-      throw new Error("Category must be a non-empty string.");
-    }
-
-    this.category = category.trim();
-  }
-
-  /**
-   * Returns all book details.
-   *
-   * @returns {Object}
-   */
-  getDetails() {
-    const {
-      isbn,
-      title,
-      author,
-      year,
-      category,
-      totalCopies,
-      availableCopies,
-      coverImage,
-      borrowedBy
-    } = this;
-
-    return {
-      isbn,
-      title,
-      author,
-      year,
-      category,
-      totalCopies,
-      availableCopies,
-      coverImage,
-      borrowedBy: [...borrowedBy],
-      borrowedCount: borrowedBy.length,
-      status: this.getStatus()
-    };
-  }
-
-  /**
-   * Returns formatted information about the book.
-   *
-   * @returns {string}
-   */
   getInfo() {
-    return `
-Title: ${this.title}
-Author: ${this.author}
-ISBN: ${this.isbn}
-Category: ${this.category}
-Published: ${this.year}
-Available Copies: ${this.availableCopies}/${this.totalCopies}
-Status: ${this.getStatus()}
-`.trim();
+
+    return `${super.getInfo()}
+    Format: ${this.fileFormat}
+    File Size: ${this.fileSize} MB
+    Downloads: ${this.downloadCount}`;
+
   }
 
-  /**
-   * Returns a readable string representation.
-   *
-   * @returns {string}
-   */
-  toString() {
-    return `${this.title} by ${this.author} (${this.year})`;
+
+
+  getDetails() {
+
+  return {
+    ...super.getDetails(),
+    fileFormat: this.fileFormat,
+    fileSize: this.fileSize,
+    downloadCount: this.downloadCount,
+    bookType: "Digital"
+  };
+
   }
+
+  getBookType() {
+    return "Digital";
+  }
+
+  toString() {
+
+    return `${this.title} by ${this.author} (${this.year}) - Digital Book`;
+
+  }
+
 }

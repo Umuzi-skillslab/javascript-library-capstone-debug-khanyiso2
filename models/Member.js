@@ -42,7 +42,7 @@ export default class Member {
     if (
       typeof email !== "string" ||
       !email.trim() ||
-      !email.includes("@")
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
     ) {
       throw new Error("A valid email address is required.");
     }
@@ -95,23 +95,30 @@ export default class Member {
    * @param {string} isbn
    * @returns {boolean}
    */
-  borrowBook(isbn) {
-    if (typeof isbn !== "string" || !isbn.trim()) {
-      throw new Error("A valid ISBN is required.");
-    }
+ borrowBook(isbn) {
+   if (typeof isbn !== "string" || !isbn.trim()) {
+     throw new Error("A valid ISBN is required.");
+   }
 
-    if (!this.canBorrow()) {
-      return false;
-    }
+   if (!this.canBorrow()) {
+     return false;
+   }
 
-    if (this.borrowedBooks.includes(isbn.trim())) {
-      return false;
-    }
+   const normalizedIsbn = isbn.trim().toUpperCase();
 
-    this.borrowedBooks.push(isbn.trim());
+   if (
+     this.borrowedBooks.some(
+       (bookIsbn) =>
+         bookIsbn.toUpperCase() === normalizedIsbn
+     )
+   ) {
+     return false;
+   }
 
-    return true;
-  }
+   this.borrowedBooks.push(normalizedIsbn);
+
+   return true;
+ }
 
   /**
    * Removes a borrowed book by ISBN.
@@ -124,8 +131,12 @@ export default class Member {
       return false;
     }
 
-    const index = this.borrowedBooks.indexOf(isbn.trim());
+   const normalizedIsbn = isbn.trim().toUpperCase();
 
+   const index = this.borrowedBooks.findIndex(
+     (bookIsbn) =>
+       bookIsbn.toUpperCase() === normalizedIsbn
+   );
     if (index === -1) {
       return false;
     }
@@ -179,7 +190,7 @@ export default class Member {
     if (
       typeof email !== "string" ||
       !email.trim() ||
-      !email.includes("@")
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
     ) {
       throw new Error("A valid email address is required.");
     }
@@ -228,6 +239,7 @@ export default class Member {
       borrowedBooks: [...borrowedBooks],
       borrowedCount: borrowedBooks.length,
       maxBooks,
+      memberType: "Standard",
       membershipDuration: this.getMembershipDuration(),
       membershipDurationText: this.getMembershipDurationText()
     };
@@ -238,7 +250,7 @@ export default class Member {
    *
    * @returns {string}
    */
-  getInfo() {
+  getMemberInfo() {
     return `
 Member ID: ${this.memberId}
 Name: ${this.fullName}
@@ -258,4 +270,22 @@ Membership Duration: ${this.getMembershipDurationText()}
   toString() {
     return `${this.fullName} (${this.memberId})`;
   }
+    /**
+   * Updates the maximum number of books a member can borrow.
+   *
+   * @param {number} limit
+   */
+  setBorrowingLimit(limit) {
+   if (
+     typeof limit !== "number" ||
+     !Number.isInteger(limit) ||
+     limit < 1
+   ) {
+     throw new Error(
+      "Borrowing limit must be a positive whole number."
+     );
+   }
+
+  this.maxBooks = limit;
+}
 }

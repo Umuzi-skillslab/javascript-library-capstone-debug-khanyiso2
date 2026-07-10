@@ -74,7 +74,7 @@ export default class Book {
     this.year = year;
     this.category = category.trim();
 
-    this.coverImage = coverImage;
+    this.coverImage = coverImage.trim();
 
     this.totalCopies = totalCopies;
     this.availableCopies = totalCopies;
@@ -88,7 +88,7 @@ export default class Book {
    *
    * @returns {boolean}
    */
-  get isAvailable() {
+  isAvailable() {
     return this.availableCopies > 0;
   }
 
@@ -98,7 +98,9 @@ export default class Book {
    * @returns {string}
    */
   getStatus() {
-    return this.isAvailable ? "Available" : "Unavailable";
+    return this.isAvailable() 
+     ? "Available" 
+     : "Unavailable";
   }
 
   /**
@@ -112,7 +114,7 @@ export default class Book {
       throw new Error("A valid member ID is required.");
     }
 
-    if (!this.isAvailable) {
+    if (!this.isAvailable()) {
       return false;
     }
 

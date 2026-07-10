@@ -1,85 +1,307 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Library Management System</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <meta
+    name="description"
+    content="Digital Library Management System"
+  >
+
+  <title>
+    Digital Library Management System
+  </title>
+
+  <link
+    rel="stylesheet"
+    href="./css/styles.css"
+  >
 </head>
+
 <body>
-    <div class="container">
-        <header>
-            <h1>Digital Library System</h1>
-            <nav>
-                <button id="catalogue-tab">Catalogue</button>
-                <button id="members-tab">Members</button>
-                <button id="statistics-tab">Statistics</button>
-            </nav>
-        </header>
-        
-        <main>
-            <section id="catalogue-section">
-                <div class="controls">
-                    <input type="text" id="search" placeholder="Search books...">
-                    <select id="filter-category">
-                        <option value="all">All Categories</option>
-                        <option value="fiction">Fiction</option>
-                        <option value="non-fiction">Non-Fiction</option>
-                        <option value="reference">Reference</option>
-                    </select>
-                </div>
-                
-                <div id="catalogue-list" class="book-grid">
-                    <!-- Books rendered here -->
-                </div>
-                
-                <div id="book-details">
-                    <!-- Selected book details -->
-                </div>
-            </section>
-            
-            <section id="borrow-section">
-                <h2>Borrow a Book</h2>
-                <form id="borrow-form">
-                    <input type="text" id="member-id" placeholder="Member ID" required>
-                    <input type="text" id="isbn" placeholder="ISBN" required>
-                    <button type="submit">Borrow Book</button>
-                </form>
-            </section>
-            
-            <section id="member-section" style="display: none;">
-                <h2>Member Management</h2>
-                <div id="member-form">
-                    <!-- Member form rendered here -->
-                </div>
-                <div id="member-list">
-                    <!-- Members list -->
-                </div>
-            </section>
-            
-            <section id="statistics-section" style="display: none;">
-                <h2>Library Statistics</h2>
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <h3>Total Books</h3>
-                        <p class="total-books">0</p>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Total Members</h3>
-                        <p class="total-members">0</p>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Books Borrowed</h3>
-                        <p class="books-borrowed">0</p>
-                    </div>
-                </div>
-            </section>
-        </main>
-    </div>
-    
-    <!-- Scripts in wrong order -->
-    <script src="ui.js"></script>
-    <script src="library.js"></script>
-    <!-- Missing: modules setup -->
+
+  <div class="container">
+
+    <header>
+
+      <h1>
+        Digital Library Management System
+      </h1>
+
+      <nav aria-label="Main Navigation">
+
+        <button
+          id="catalogue-tab"
+          type="button"
+        >
+          Catalogue
+        </button>
+
+        <button
+          id="members-tab"
+          type="button"
+        >
+          Members
+        </button>
+
+        <button
+          id="statistics-tab"
+          type="button"
+        >
+          Statistics
+        </button>
+
+      </nav>
+
+    </header>
+
+    <main>
+
+      <!-- Catalogue -->
+
+      <section id="catalogue-section">
+
+        <h2>
+          Book Catalogue
+        </h2>
+
+        <div class="controls">
+
+          <div>
+
+            <label for="search">
+              Search Books
+            </label>
+
+            <input
+              type="text"
+              id="search"
+              placeholder="Search books..."
+              autocomplete="off"
+            >
+
+          </div>
+
+          <div>
+
+            <label for="filter-category">
+              Category
+            </label>
+
+            <select id="filter-category">
+
+              <option value="all">
+                All Categories
+              </option>
+
+              <option value="fiction">
+                Fiction
+              </option>
+
+              <option value="non-fiction">
+                Non-Fiction
+              </option>
+
+              <option value="programming">
+                programming
+              </option>
+
+              <option value="reference">
+                Reference
+              </option>
+
+            </select>
+
+          </div>
+
+        </div>
+
+        <div
+          id="catalogue-list"
+          class="book-grid"
+        >
+          <!-- Books rendered by ui.js -->
+        </div>
+
+        <section id="book-details">
+
+          <h2>
+            Book Details
+          </h2>
+
+          <p>
+            Select a book to view its details.
+          </p>
+
+        </section>
+
+      </section>
+
+        <!-- Add Book -->
+
+     <section id="book-management">
+
+      <h2>
+           Add New Book
+      </h2>
+
+          <div id="book-form">
+        <!-- Generated by ui.js -->
+          </div>
+
+     </section>
+
+     <!-- Borrow -->
+
+      <section id="borrow-section">
+
+        <h2>
+          Borrow a Book
+        </h2>
+
+        <form id="borrow-form">
+
+          <label for="member-id">
+            Member ID
+          </label>
+
+          <input
+            type="text"
+            id="member-id"
+            placeholder="Enter Member ID"
+            autocomplete="off"
+            required
+          >
+
+          <label for="isbn">
+            ISBN
+          </label>
+
+          <input
+            type="text"
+            id="isbn"
+            placeholder="Enter ISBN"
+            autocomplete="off"
+            required
+          >
+
+          <button type="submit">
+            Borrow Book
+          </button>
+
+        </form>
+
+      </section>
+
+      <!-- Members -->
+
+      <section
+        id="member-section"
+        class="hidden"
+      >
+
+        <h2>
+          Member Management
+        </h2>
+
+        <div id="member-form">
+          <!-- Generated by ui.js -->
+        </div>
+
+        <div id="member-list">
+          <!-- Members displayed here -->
+        </div>
+
+      </section>
+
+      <!-- Statistics -->
+
+      <section
+        id="statistics-section"
+        class="hidden"
+      >
+
+        <h2>
+          Library Statistics
+        </h2>
+
+        <div class="stats-grid">
+
+          <div class="stat-card">
+
+            <h3>
+              Total Books
+            </h3>
+
+            <p
+              class="total-books"
+              aria-live="polite"
+            >
+              0
+            </p>
+
+          </div>
+
+          <div class="stat-card">
+
+            <h3>
+              Total Members
+            </h3>
+
+            <p
+              class="total-members"
+              aria-live="polite"
+            >
+              0
+            </p>
+
+          </div>
+
+          <div class="stat-card">
+
+            <h3>
+              Available Books
+            </h3>
+
+            <p
+              class="available-books"
+              aria-live="polite"
+            >
+              0
+            </p>
+
+          </div>
+
+        </div>
+
+      </section>
+
+    </main>
+
+    <footer>
+
+      <p>
+        &copy; 2026 Digital Library Management System
+      </p>
+
+    </footer>
+
+  </div>
+
+  <script
+    type="module"
+    src="./App/app.js"
+  ></script>
+
+  <script
+    type="module"
+    src="./UI/ui.js"
+  ></script>
+
 </body>
 </html>

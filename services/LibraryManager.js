@@ -164,7 +164,7 @@ export default class LibraryManager {
    */
   getAvailableBooks() {
     return this.books.filter(
-      (book) => book.isAvailable
+      (book) => book.isAvailable()
     );
   }
 
@@ -213,12 +213,12 @@ export default class LibraryManager {
       );
     }
 
-  const normalizedMemberId =
-    memberId.trim().toUpperCase();
+    const normalizedMemberId =
+      memberId.trim().toUpperCase();
 
-  const index = this.members.findIndex(
-    (member) =>
-      member.memberId.toUpperCase() === normalizedMemberId
+    const index = this.members.findIndex(
+      (member) =>
+        member.memberId.toUpperCase() === normalizedMemberId
     );
 
     if (index === -1) {
@@ -253,13 +253,13 @@ export default class LibraryManager {
     }
 
     const normalizedMemberId =
-    memberId.trim().toUpperCase();
+      memberId.trim().toUpperCase();
 
-  return (
-    this.members.find(
-      (member) =>
-        member.memberId.toUpperCase() === normalizedMemberId
-     ) || null
+    return (
+      this.members.find(
+        (member) =>
+          member.memberId.toUpperCase() === normalizedMemberId
+      ) || null
     );
   }
 
@@ -369,16 +369,17 @@ export default class LibraryManager {
       return false;
     }
 
-    if (!book.isAvailable) {
+    if (!book.isAvailable()) {
       return false;
     }
 
     // Prevent duplicate borrowing records.
+const normalizedIsbn = book.isbn.toUpperCase();
+
     if (
       member.borrowedBooks.some(
         (borrowedIsbn) =>
-          borrowedIsbn.toUpperCase() ===
-          book.isbn.toUpperCase()
+          borrowedIsbn.toUpperCase() === normalizedIsbn
       ) ||
       book.borrowedBy.includes(member.memberId)
     ) {
@@ -476,7 +477,7 @@ export default class LibraryManager {
 
     const availableBooks =
       this.books.filter(
-        (book) => book.isAvailable
+        (book) => book.isAvailable()
       ).length;
 
     const borrowedBooks =

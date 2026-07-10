@@ -8,6 +8,15 @@ import Member from "./Member.js";
 
 export default class PremiumMember extends Member {
   /**
+   * Available premium membership levels.
+   *
+   * @returns {string[]}
+   */
+  static get VALID_MEMBERSHIPS() {
+    return ["Gold", "Platinum"];
+  }
+
+  /**
    * Creates a new PremiumMember.
    *
    * @param {string} memberId - Unique member ID.
@@ -36,51 +45,42 @@ export default class PremiumMember extends Member {
       joinDate
     );
 
-    const validMemberships = ["Gold", "Platinum"];
-
-    if (
-      typeof membershipType !== "string" ||
-      !validMemberships.includes(membershipType.trim())
-    ) {
-      throw new Error(
-        `Membership type must be one of: ${validMemberships.join(", ")}.`
-      );
-    }
+    this.validateMembershipType(membershipType);
 
     this.membershipType = membershipType.trim();
 
     // Premium members have a higher borrowing limit.
-    this.maxBooks = 10;
+    this.setBorrowingLimit(10);
 
     // Premium members receive priority support.
     this.prioritySupport = true;
   }
 
   /**
-   * Determines whether the premium member can borrow another book.
+   * Validates membership type.
    *
-   * @returns {boolean}
+   * @param {string} membershipType
    */
-  canBorrow() {
-    return this.borrowedBooks.length < this.maxBooks;
+  validateMembershipType(membershipType) {
+    if (
+      typeof membershipType !== "string" ||
+      !PremiumMember.VALID_MEMBERSHIPS.includes(
+        membershipType.trim()
+      )
+    ) {
+      throw new Error(
+        `Membership type must be one of: ${PremiumMember.VALID_MEMBERSHIPS.join(", ")}.`
+      );
+    }
   }
 
   /**
-   * Upgrades the membership type.
+   * Upgrades or changes the membership type.
    *
    * @param {string} membershipType
    */
   upgradeMembership(membershipType) {
-    const validMemberships = ["Gold", "Platinum"];
-
-    if (
-      typeof membershipType !== "string" ||
-      !validMemberships.includes(membershipType.trim())
-    ) {
-      throw new Error(
-        `Membership type must be one of: ${validMemberships.join(", ")}.`
-      );
-    }
+    this.validateMembershipType(membershipType);
 
     this.membershipType = membershipType.trim();
   }
@@ -118,8 +118,8 @@ export default class PremiumMember extends Member {
    *
    * @returns {string}
    */
-  getInfo() {
-    return `${super.getInfo()}
+  getMemberInfo() {
+    return `${super.getMemberInfo()}
 
 Membership Type: ${this.membershipType}
 Member Level: Premium
@@ -137,5 +137,15 @@ Benefits:
    */
   toString() {
     return `${this.fullName} (${this.memberId}) - ${this.membershipType} Premium Member`;
+  }
+
+  /**
+   * Indicates that this member
+   * is a premium member.
+   *
+   * @returns {boolean}
+   */
+  isPremium() {
+    return true;
   }
 }
