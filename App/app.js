@@ -7,8 +7,8 @@ import Book from "../models/Book.js";
 import DigitalBook from "../models/DigitalBook.js";
 import Member from "../models/Member.js";
 import PremiumMember from "../models/PremiumMember.js";
-import LibraryManager from "./services/LibraryManager.js";
-import Storage from "./services/Storage.js";
+import LibraryManager from "../services/LibraryManager.js";
+import Storage from "../services/Storage.js";
 
 const library = new LibraryManager();
 const storage = new Storage();
