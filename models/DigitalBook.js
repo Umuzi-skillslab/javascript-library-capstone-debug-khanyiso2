@@ -16,7 +16,6 @@ export default class DigitalBook extends Book {
     totalCopies = 1,
     category = "General",
     coverImage = "images/default-book.jpg",
-    fileFormat = "PDF",
     fileSize = 0
   ) {
 
@@ -41,16 +40,6 @@ export default class DigitalBook extends Book {
       );
     }
  
-    if (
-      typeof fileFormat !== "string" ||
-      !fileFormat.trim()
-    ) {
-      throw new Error(
-        "File format must be a non-empty string."
-      );
-    }
-    
-    this.fileFormat = fileFormat.trim();
     this.fileSize = fileSize;
 
     this.downloadCount = 0;
@@ -131,7 +120,6 @@ returnBook(memberId) {
   getInfo() {
 
     return `${super.getInfo()}
-    Format: ${this.fileFormat}
     File Size: ${this.fileSize} MB
     Downloads: ${this.downloadCount}`;
 
@@ -143,7 +131,6 @@ returnBook(memberId) {
 
   return {
     ...super.getDetails(),
-    fileFormat: this.fileFormat,
     fileSize: this.fileSize,
     downloadCount: this.downloadCount,
     bookType: "Digital"

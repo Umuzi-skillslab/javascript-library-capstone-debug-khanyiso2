@@ -136,7 +136,6 @@ export default class Storage {
               bookData.totalCopies,
               bookData.category,
               bookData.coverImage,
-              bookData.fileFormat,
               bookData.fileSize
             );
 
