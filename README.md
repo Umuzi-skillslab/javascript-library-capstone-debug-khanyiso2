@@ -56,6 +56,29 @@ The project uses modern JavaScript features including:
 * `const` and `let`
 * Exception handling with `try...catch`
 
+## Key Methods
+
+### Book
+- `checkOut(memberId)` – Borrows a physical book.
+- `returnBook(memberId)` – Returns a borrowed book.
+- `isAvailable()` – Checks if copies are available.
+
+### DigitalBook
+- `download()` – Records a digital download.
+- `checkOut(memberId)` – Allows digital borrowing without reducing stock.
+
+### LibraryManager
+- `addBook(book)` – Adds a new book.
+- `addMember(member)` – Registers a member.
+- `borrowBook(memberId, isbn)` – Borrows a book.
+- `returnBook(memberId, isbn)` – Returns a borrowed book.
+
+### Storage
+- `saveLibrary()` – Saves data to localStorage.
+- `loadLibrary()` – Restores saved data.
+- `exportLibrary()` – Exports data as JSON.
+- `importLibrary()` – Imports library data.
+
 ## Project Architecture
 
 The application is organised into separate modules for:
@@ -72,8 +95,7 @@ This modular design improves maintainability and code organisation.
 Clone the repository:
 
 ```bash
-git clone <repository-url>
-```
+git clone https://github.com/Umuzi-skillslab/javascript-library-capstone-debug-khanyiso2.git```
 
 Install dependencies:
 
@@ -104,6 +126,22 @@ npm test -- --coverage
 * Test Suites: **6 passed**
 * Tests: **106 passed**
 * Failures: **0**
+
+
+## Screenshots
+
+The project includes screenshots demonstrating:
+
+- Application running successfully
+- Search functionality
+- Statistics dashboard
+- All Jest tests passing
+- Code coverage report
+
+Screenshots are located in:
+
+assets/screenshots/
+
 
 ## Reflection
 
