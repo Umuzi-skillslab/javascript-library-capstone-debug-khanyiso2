@@ -1,306 +1,180 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <meta
-    name="description"
-    content="Digital Library Management System"
-  >
+    <meta name="description" content="Digital Library Management System" />
 
-  <title>
-    Digital Library Management System
-  </title>
+    <title>Digital Library Management System</title>
 
-  <link
-    rel="icon"
-    href="./assets/favicon.png"
-  >
+    <link rel="icon" href="./assets/favicon.png" />
 
-  <link
-    rel="stylesheet"
-    href="./css/styles.css"
-  >
-</head>
+    <link rel="stylesheet" href="./css/styles.css" />
+  </head>
 
-<body>
+  <body>
+    <a class="skip-link" href="#main-content"> Skip to main content </a>
 
-  <a class="skip-link" href="#main-content">
-    Skip to main content
-  </a>
+    <div class="container library-theme">
+      <header>
+        <h1>Digital Library Management System</h1>
 
-  <div class="container">
+        <nav aria-label="Main Navigation">
+          <button id="catalogue-tab" type="button">Catalogue</button>
 
-    <header>
+          <button id="members-tab" type="button">Members</button>
 
-      <h1>
-        Digital Library Management System
-      </h1>
+          <button id="statistics-tab" type="button">Statistics</button>
+        </nav>
+      </header>
 
-      <nav aria-label="Main Navigation">
+      <main id="main-content">
+        <section id="catalogue-section">
+          <div class="catalogue-header">
+            <div>
+              <h2>Library Collection</h2>
 
-        <button
-          id="catalogue-tab"
-          type="button"
-        >
-          Catalogue
-        </button>
+              <p class="catalogue-subtitle">
+                Browse and borrow books from our digital library.
+              </p>
+            </div>
+          </div>
 
-        <button
-          id="members-tab"
-          type="button"
-        >
-          Members
-        </button>
+          <div class="controls">
+            <div>
+              <label for="search"> Search Books </label>
 
-        <button
-          id="statistics-tab"
-          type="button"
-        >
-          Statistics
-        </button>
+              <input
+                type="text"
+                id="search"
+                placeholder="Search books..."
+                autocomplete="off"
+                aria-label="Search books"
+              />
+            </div>
 
-      </nav>
+            <div>
+              <label for="filter-category"> Category </label>
 
-    </header>
+              <select
+                id="filter-category"
+                aria-label="Filter books by category"
+              >
+                <option value="all">All Categories</option>
 
-    <main id="main-content">
+                <option value="fiction">Fiction</option>
 
-      <section id="catalogue-section">
+                <option value="non-fiction">Non-Fiction</option>
 
-        <h2>
-          Book Catalogue
-        </h2>
+                <option value="programming">Programming</option>
 
-        <div class="controls">
+                <option value="reference">Reference</option>
+              </select>
+            </div>
+          </div>
 
-          <div>
+          <div id="catalogue-list" class="book-grid"></div>
 
-            <label for="search">
-              Search Books
-            </label>
+          <div class="pagination">
+            <button id="previous-page">◀ Previous</button>
+
+            <span id="page-number"> Page 1 </span>
+
+            <button id="next-page">Next ▶</button>
+          </div>
+
+        </section>
+        <div id="book-modal" class="hidden">
+
+         <div class="modal-box">
+
+          <button id="close-modal" class="close-btn">
+            &times;
+          </button>
+
+          <div id="modal-content"></div>
+
+        </div>
+
+      </div>
+        <section id="member-section" class="hidden">
+          <h2>Member Management</h2>
+
+          <div id="member-form"></div>
+
+          <div id="member-list"></div>
+          <hr>
+          <div id="borrow-section">
+          <h2>Borrow / Return Books</h2>
+
+          <form id="borrow-form">
+            <label for="member-id"> Member ID </label>
 
             <input
               type="text"
-              id="search"
-              placeholder="Search books..."
+              id="member-id"
+              placeholder="Enter Member ID"
               autocomplete="off"
-              aria-label="Search books"
-            >
+              required
+            />
 
-          </div>
+            <label for="isbn"> ISBN </label>
 
-          <div>
+            <input
+              type="text"
+              id="isbn"
+              placeholder="Enter ISBN"
+              autocomplete="off"
+              required
+            />
 
-            <label for="filter-category">
-              Category
-            </label>
+            <button type="submit" id="borrow-btn">
+              Borrow Book
+            </button>
 
-            <select
-              id="filter-category"
-              aria-label="Filter books by category"
-            >
-
-              <option value="all">
-                All Categories
-              </option>
-
-              <option value="fiction">
-                Fiction
-              </option>
-
-              <option value="non-fiction">
-                Non-Fiction
-              </option>
-
-              <option value="programming">
-                Programming
-              </option>
-
-              <option value="reference">
-                Reference
-              </option>
-
-            </select>
-
-          </div>
-
+            <button type="button" id="return-btn">
+             Return Book
+            </button>
+          </form>
         </div>
+        </section>
 
-        <div
-          id="catalogue-list"
-          class="book-grid"
-        >
+        <section id="statistics-section" class="hidden">
+          <h2>Library Statistics</h2>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <h3>Total Books</h3>
+
+              <p class="total-books" aria-live="polite">0</p>
+            </div>
+
+            <div class="stat-card">
+              <h3>Total Members</h3>
+
+              <p class="total-members" aria-live="polite">0</p>
+            </div>
+
+            <div class="stat-card">
+              <h3>Available Books</h3>
+
+              <p class="available-books" aria-live="polite">0</p>
+            </div>
           </div>
+        </section>
+      </main>
 
-        <div id="book-details">
+      <footer>
+        <p>
+          &copy; 2026 Digital Library Management System. All rights reserved.
+        </p>
+      </footer>
+    </div>
 
-          <h2>
-            Book Details
-          </h2>
+    <script type="module" src="./App/app.js"></script>
 
-          <p>
-            Select a book to view its details.
-          </p>
-
-        </div>
-
-      </section>
-
-      <section id="book-management">
-
-        <h2>
-          Add New Book
-        </h2>
-
-        <div id="book-form">
-          </div>
-
-      </section>
-
-      <section id="borrow-section">
-
-        <h2>
-          Borrow a Book
-        </h2>
-
-        <form id="borrow-form">
-
-          <label for="member-id">
-            Member ID
-          </label>
-
-          <input
-            type="text"
-            id="member-id"
-            placeholder="Enter Member ID"
-            autocomplete="off"
-            required
-          >
-
-          <label for="isbn">
-            ISBN
-          </label>
-
-          <input
-            type="text"
-            id="isbn"
-            placeholder="Enter ISBN"
-            autocomplete="off"
-            required
-          >
-
-          <button type="submit">
-            Borrow Book
-          </button>
-
-        </form>
-
-      </section>
-
-      <section
-        id="member-section"
-        class="hidden"
-      >
-
-        <h2>
-          Member Management
-        </h2>
-
-        <div id="member-form">
-          </div>
-
-        <div id="member-list">
-          </div>
-
-      </section>
-
-      <section
-        id="statistics-section"
-        class="hidden"
-      >
-
-        <h2>
-          Library Statistics
-        </h2>
-
-        <div class="stats-grid">
-
-          <div class="stat-card">
-
-            <h3>
-              Total Books
-            </h3>
-
-            <p
-              class="total-books"
-              aria-live="polite"
-            >
-              0
-            </p>
-
-          </div>
-
-          <div class="stat-card">
-
-            <h3>
-              Total Members
-            </h3>
-
-            <p
-              class="total-members"
-              aria-live="polite"
-            >
-              0
-            </p>
-
-          </div>
-
-          <div class="stat-card">
-
-            <h3>
-              Available Books
-            </h3>
-
-            <p
-              class="available-books"
-              aria-live="polite"
-            >
-              0
-            </p>
-
-          </div>
-
-        </div>
-
-      </section>
-
-    </main>
-
-    <footer>
-
-      <p>
-        &copy; 2026 Digital Library Management System. All rights reserved.
-      </p>
-
-    </footer>
-
-  </div>
-
-  <script
-    type="module"
-    src="./App/app.js"
-  ></script>
-
-  <script
-    type="module"
-    src="./ui/ui.js"
-  ></script>
-
-</body>
+    <script type="module" src="./ui/ui.js"></script>
+  </body>
 </html>

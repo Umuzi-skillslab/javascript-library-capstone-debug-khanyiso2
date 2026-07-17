@@ -21,7 +21,7 @@ export default class Member {
     lastName,
     email,
     phone,
-    joinDate = new Date()
+    joinDate = new Date(),
   ) {
     // Validate member ID
     if (typeof memberId !== "string" || !memberId.trim()) {
@@ -64,7 +64,13 @@ export default class Member {
     this.phone = phone.trim();
     this.joinDate = joinDate;
 
-    // Stores ISBNs of borrowed books
+    // Stores borrowing records
+    // Example:
+    // {
+    //   isbn: "9780132350884",
+    //   borrowDate: "2026-07-16",
+    //   dueDate: "2026-07-30"
+    // }
     this.borrowedBooks = [];
 
     // Default borrowing limit
@@ -95,30 +101,33 @@ export default class Member {
    * @param {string} isbn
    * @returns {boolean}
    */
- borrowBook(isbn) {
-   if (typeof isbn !== "string" || !isbn.trim()) {
-     throw new Error("A valid ISBN is required.");
-   }
+  borrowBook(isbn) {
+    if (typeof isbn !== "string" || !isbn.trim()) {
+      throw new Error("A valid ISBN is required.");
+    }
 
-   if (!this.canBorrow()) {
-     return false;
-   }
+    if (!this.canBorrow()) {
+      return false;
+    }
 
-   const normalizedIsbn = isbn.trim().toUpperCase();
+    const normalizedIsbn = isbn.trim().toUpperCase();
 
-   if (
-     this.borrowedBooks.some(
-       (bookIsbn) =>
-         bookIsbn.toUpperCase() === normalizedIsbn
-     )
-   ) {
-     return false;
-   }
+    if (this.borrowedBooks.some((book) => book.isbn === normalizedIsbn)) {
+      return false;
+    }
+    const borrowDate = new Date();
 
-   this.borrowedBooks.push(normalizedIsbn);
+    const dueDate = new Date(borrowDate);
 
-   return true;
- }
+    dueDate.setDate(dueDate.getDate() + 14);
+
+    this.borrowedBooks.push({
+      isbn: normalizedIsbn,
+      borrowDate: borrowDate.toISOString(),
+      dueDate: dueDate.toISOString(),
+    });
+    return true;
+  }
 
   /**
    * Removes a borrowed book by ISBN.
@@ -131,12 +140,11 @@ export default class Member {
       return false;
     }
 
-   const normalizedIsbn = isbn.trim().toUpperCase();
+    const normalizedIsbn = isbn.trim().toUpperCase();
 
-   const index = this.borrowedBooks.findIndex(
-     (bookIsbn) =>
-       bookIsbn.toUpperCase() === normalizedIsbn
-   );
+    const index = this.borrowedBooks.findIndex(
+      (book) => book.isbn === normalizedIsbn,
+    );
     if (index === -1) {
       return false;
     }
@@ -144,6 +152,48 @@ export default class Member {
     this.borrowedBooks.splice(index, 1);
 
     return true;
+  }
+
+  /**
+   * Returns a borrowing record.
+   */
+  getBorrowedBook(isbn) {
+    const normalizedIsbn = isbn.trim().toUpperCase();
+
+    return (
+      this.borrowedBooks.find((book) => book.isbn === normalizedIsbn) || null
+    );
+  }
+
+  /**
+   * Checks whether one of the member's
+   * borrowed books is overdue.
+   */
+  isBookOverdue(isbn) {
+    const record = this.getBorrowedBook(isbn);
+
+    if (!record) {
+      return false;
+    }
+
+    return new Date() > new Date(record.dueDate);
+  }
+
+  /**
+   * Returns days remaining before due date.
+   */
+  getRemainingDays(isbn) {
+    const record = this.getBorrowedBook(isbn);
+
+    if (!record) {
+      return null;
+    }
+
+    const due = new Date(record.dueDate);
+
+    const today = new Date();
+
+    return Math.ceil((due - today) / (1000 * 60 * 60 * 24));
   }
 
   /**
@@ -158,10 +208,8 @@ export default class Member {
 
     const hasAnniversaryPassed =
       today.getMonth() > this.joinDate.getMonth() ||
-      (
-        today.getMonth() === this.joinDate.getMonth() &&
-        today.getDate() >= this.joinDate.getDate()
-      );
+      (today.getMonth() === this.joinDate.getMonth() &&
+        today.getDate() >= this.joinDate.getDate());
 
     if (!hasAnniversaryPassed) {
       years--;
@@ -225,7 +273,7 @@ export default class Member {
       phone,
       joinDate,
       borrowedBooks,
-      maxBooks
+      maxBooks,
     } = this;
 
     return {
@@ -236,12 +284,12 @@ export default class Member {
       email,
       phone,
       joinDate,
-      borrowedBooks: [...borrowedBooks],
+      borrowedBooks: borrowedBooks.map((book) => ({ ...book })),
       borrowedCount: borrowedBooks.length,
       maxBooks,
       memberType: "Standard",
       membershipDuration: this.getMembershipDuration(),
-      membershipDurationText: this.getMembershipDurationText()
+      membershipDurationText: this.getMembershipDurationText(),
     };
   }
 
@@ -270,22 +318,16 @@ Membership Duration: ${this.getMembershipDurationText()}
   toString() {
     return `${this.fullName} (${this.memberId})`;
   }
-    /**
+  /**
    * Updates the maximum number of books a member can borrow.
    *
    * @param {number} limit
    */
   setBorrowingLimit(limit) {
-   if (
-     typeof limit !== "number" ||
-     !Number.isInteger(limit) ||
-     limit < 1
-   ) {
-     throw new Error(
-      "Borrowing limit must be a positive whole number."
-     );
-   }
+    if (typeof limit !== "number" || !Number.isInteger(limit) || limit < 1) {
+      throw new Error("Borrowing limit must be a positive whole number.");
+    }
 
-  this.maxBooks = limit;
-}
+    this.maxBooks = limit;
+  }
 }

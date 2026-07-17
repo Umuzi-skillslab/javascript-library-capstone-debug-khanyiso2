@@ -40,9 +40,7 @@ export default class LibraryManager {
    */
   addBook(book) {
     if (!(book instanceof Book)) {
-      throw new Error(
-        "Book must be an instance of Book or DigitalBook."
-      );
+      throw new Error("Book must be an instance of Book or DigitalBook.");
     }
 
     if (this.findBook(book.isbn)) {
@@ -71,8 +69,7 @@ export default class LibraryManager {
     const normalizedIsbn = isbn.trim().toUpperCase();
 
     const index = this.books.findIndex(
-      (book) =>
-        book.isbn.toUpperCase() === normalizedIsbn
+      (book) => book.isbn.toUpperCase() === normalizedIsbn,
     );
 
     if (index === -1) {
@@ -104,10 +101,8 @@ export default class LibraryManager {
     const normalizedIsbn = isbn.trim().toUpperCase();
 
     return (
-      this.books.find(
-        (book) =>
-          book.isbn.toUpperCase() === normalizedIsbn
-      ) || null
+      this.books.find((book) => book.isbn.toUpperCase() === normalizedIsbn) ||
+      null
     );
   }
 
@@ -125,23 +120,19 @@ export default class LibraryManager {
    * @returns {Array<Book|DigitalBook>}
    */
   searchBooks(keyword) {
-    if (
-      typeof keyword !== "string" ||
-      !keyword.trim()
-    ) {
-      throw new Error(
-        "Search keyword must be a non-empty string."
-      );
+    if (typeof keyword !== "string" || !keyword.trim()) {
+      throw new Error("Search keyword must be a non-empty string.");
     }
 
     const search = keyword.trim().toLowerCase();
 
-    return this.books.filter((book) =>
-      book.title.toLowerCase().includes(search) ||
-      book.author.toLowerCase().includes(search) ||
-      book.category.toLowerCase().includes(search) ||
-      book.isbn.toLowerCase().includes(search) ||
-      book.year.toString().includes(search)
+    return this.books.filter(
+      (book) =>
+        book.title.toLowerCase().includes(search) ||
+        book.author.toLowerCase().includes(search) ||
+        book.category.toLowerCase().includes(search) ||
+        book.isbn.toLowerCase().includes(search) ||
+        book.year.toString().includes(search),
     );
   }
 
@@ -163,9 +154,7 @@ export default class LibraryManager {
    * @returns {Array<Book|DigitalBook>}
    */
   getAvailableBooks() {
-    return this.books.filter(
-      (book) => book.isAvailable()
-    );
+    return this.books.filter((book) => book.isAvailable());
   }
 
   // =====================================================
@@ -180,9 +169,7 @@ export default class LibraryManager {
    */
   addMember(member) {
     if (!(member instanceof Member)) {
-      throw new Error(
-        "Member must be an instance of Member or PremiumMember."
-      );
+      throw new Error("Member must be an instance of Member or PremiumMember.");
     }
 
     if (this.findMember(member.memberId)) {
@@ -204,30 +191,21 @@ export default class LibraryManager {
    * @returns {boolean}
    */
   removeMember(memberId) {
-    if (
-      typeof memberId !== "string" ||
-      !memberId.trim()
-    ) {
-      throw new Error(
-        "Member ID must be a non-empty string."
-      );
+    if (typeof memberId !== "string" || !memberId.trim()) {
+      throw new Error("Member ID must be a non-empty string.");
     }
 
-    const normalizedMemberId =
-      memberId.trim().toUpperCase();
+    const normalizedMemberId = memberId.trim().toUpperCase();
 
     const index = this.members.findIndex(
-      (member) =>
-        member.memberId.toUpperCase() === normalizedMemberId
+      (member) => member.memberId.toUpperCase() === normalizedMemberId,
     );
 
     if (index === -1) {
       return false;
     }
 
-    if (
-      this.members[index].borrowedBooks.length > 0
-    ) {
+    if (this.members[index].borrowedBooks.length > 0) {
       return false;
     }
 
@@ -243,22 +221,15 @@ export default class LibraryManager {
    * @returns {Member|PremiumMember|null}
    */
   findMember(memberId) {
-    if (
-      typeof memberId !== "string" ||
-      !memberId.trim()
-    ) {
-      throw new Error(
-        "Member ID must be a non-empty string."
-      );
+    if (typeof memberId !== "string" || !memberId.trim()) {
+      throw new Error("Member ID must be a non-empty string.");
     }
 
-    const normalizedMemberId =
-      memberId.trim().toUpperCase();
+    const normalizedMemberId = memberId.trim().toUpperCase();
 
     return (
       this.members.find(
-        (member) =>
-          member.memberId.toUpperCase() === normalizedMemberId
+        (member) => member.memberId.toUpperCase() === normalizedMemberId,
       ) || null
     );
   }
@@ -278,36 +249,20 @@ export default class LibraryManager {
    * @returns {Array<Member|PremiumMember>}
    */
   searchMembers(keyword) {
-    if (
-      typeof keyword !== "string" ||
-      !keyword.trim()
-    ) {
-      throw new Error(
-        "Search keyword must be a non-empty string."
-      );
+    if (typeof keyword !== "string" || !keyword.trim()) {
+      throw new Error("Search keyword must be a non-empty string.");
     }
 
     const search = keyword.trim().toLowerCase();
 
-    return this.members.filter((member) =>
-      member.memberId
-        .toLowerCase()
-        .includes(search) ||
-      member.firstName
-        .toLowerCase()
-        .includes(search) ||
-      member.lastName
-        .toLowerCase()
-        .includes(search) ||
-      member.fullName
-        .toLowerCase()
-        .includes(search) ||
-      member.email
-        .toLowerCase()
-        .includes(search) ||
-      member.phone
-        .toLowerCase()
-        .includes(search)
+    return this.members.filter(
+      (member) =>
+        member.memberId.toLowerCase().includes(search) ||
+        member.firstName.toLowerCase().includes(search) ||
+        member.lastName.toLowerCase().includes(search) ||
+        member.fullName.toLowerCase().includes(search) ||
+        member.email.toLowerCase().includes(search) ||
+        member.phone.toLowerCase().includes(search),
     );
   }
 
@@ -340,22 +295,12 @@ export default class LibraryManager {
    * @returns {boolean}
    */
   borrowBook(memberId, isbn) {
-    if (
-      typeof memberId !== "string" ||
-      !memberId.trim()
-    ) {
-      throw new Error(
-        "Member ID must be a non-empty string."
-      );
+    if (typeof memberId !== "string" || !memberId.trim()) {
+      throw new Error("Member ID must be a non-empty string.");
     }
 
-    if (
-      typeof isbn !== "string" ||
-      !isbn.trim()
-    ) {
-      throw new Error(
-        "ISBN must be a non-empty string."
-      );
+    if (typeof isbn !== "string" || !isbn.trim()) {
+      throw new Error("ISBN must be a non-empty string.");
     }
 
     const member = this.findMember(memberId);
@@ -374,28 +319,26 @@ export default class LibraryManager {
     }
 
     // Prevent duplicate borrowing records.
-const normalizedIsbn = book.isbn.toUpperCase();
+  const normalizedIsbn = book.isbn.toUpperCase();
 
-    if (
-      member.borrowedBooks.some(
-        (borrowedIsbn) =>
-          borrowedIsbn.toUpperCase() === normalizedIsbn
-      ) ||
-      book.borrowedBy.includes(member.memberId)
-    ) {
-      return false;
-    }
+  if (
+    member.borrowedBooks.some(
+      (record) => record.isbn === normalizedIsbn,
+    ) ||
+    book.borrowedBy.some(
+      (record) => record.memberId === member.memberId,
+    )
+  ) {
+    return false;
+  }
 
-    const bookCheckedOut = book.checkOut(
-      member.memberId
-    );
+    const bookCheckedOut = book.checkOut(member.memberId);
 
     if (!bookCheckedOut) {
       return false;
     }
 
-    const memberBorrowed =
-      member.borrowBook(book.isbn);
+    const memberBorrowed = member.borrowBook(book.isbn);
 
     if (!memberBorrowed) {
       // Roll back the book checkout.
@@ -418,22 +361,12 @@ const normalizedIsbn = book.isbn.toUpperCase();
    * @returns {boolean}
    */
   returnBook(memberId, isbn) {
-    if (
-      typeof memberId !== "string" ||
-      !memberId.trim()
-    ) {
-      throw new Error(
-        "Member ID must be a non-empty string."
-      );
+    if (typeof memberId !== "string" || !memberId.trim()) {
+      throw new Error("Member ID must be a non-empty string.");
     }
 
-    if (
-      typeof isbn !== "string" ||
-      !isbn.trim()
-    ) {
-      throw new Error(
-        "ISBN must be a non-empty string."
-      );
+    if (typeof isbn !== "string" || !isbn.trim()) {
+      throw new Error("ISBN must be a non-empty string.");
     }
 
     const member = this.findMember(memberId);
@@ -443,15 +376,13 @@ const normalizedIsbn = book.isbn.toUpperCase();
       return false;
     }
 
-    const memberReturned =
-      member.returnBook(book.isbn);
+    const memberReturned = member.returnBook(book.isbn);
 
     if (!memberReturned) {
       return false;
     }
 
-    const bookReturned =
-      book.returnBook(member.memberId);
+    const bookReturned = book.returnBook(member.memberId);
 
     if (!bookReturned) {
       // Restore member record.
@@ -475,40 +406,30 @@ const normalizedIsbn = book.isbn.toUpperCase();
   getStatistics() {
     const totalBooks = this.books.length;
 
-    const availableBooks =
-      this.books.filter(
-        (book) => book.isAvailable()
-      ).length;
+    const availableBooks = this.books.filter((book) =>
+      book.isAvailable(),
+    ).length;
 
-    const borrowedBooks =
-      this.books.reduce(
-        (total, book) =>
-          total + book.borrowedBy.length,
-        0
-      );
+    const borrowedBooks = this.books.reduce(
+      (total, book) => total + book.borrowedBy.length,
+      0,
+    );
 
-    const digitalBooks =
-      this.books.filter(
-        (book) => book instanceof DigitalBook
-      ).length;
+    const digitalBooks = this.books.filter(
+      (book) => book instanceof DigitalBook,
+    ).length;
 
-    const physicalBooks =
-      this.books.filter(
-        (book) =>
-          !(book instanceof DigitalBook)
-      ).length;
+    const physicalBooks = this.books.filter(
+      (book) => !(book instanceof DigitalBook),
+    ).length;
 
-    const totalMembers =
-      this.members.length;
+    const totalMembers = this.members.length;
 
-    const premiumMembers =
-      this.members.filter(
-        (member) =>
-          member instanceof PremiumMember
-      ).length;
+    const premiumMembers = this.members.filter(
+      (member) => member instanceof PremiumMember,
+    ).length;
 
-    const standardMembers =
-      totalMembers - premiumMembers;
+    const standardMembers = totalMembers - premiumMembers;
 
     return {
       totalBooks,
@@ -518,7 +439,7 @@ const normalizedIsbn = book.isbn.toUpperCase();
       digitalBooks,
       totalMembers,
       standardMembers,
-      premiumMembers
+      premiumMembers,
     };
   }
 

@@ -23,7 +23,7 @@ export default class Book {
     year,
     totalCopies = 1,
     category = "General",
-    coverImage = "images/default-book.jpg"
+    coverImage = "images/default-book.jpg",
   ) {
     // Validate ISBN
     if (typeof isbn !== "string" || !isbn.trim()) {
@@ -41,11 +41,7 @@ export default class Book {
     }
 
     // Validate publication year
-    if (
-      typeof year !== "number" ||
-      Number.isNaN(year) ||
-      year < 0
-    ) {
+    if (typeof year !== "number" || Number.isNaN(year) || year < 0) {
       throw new Error("Year must be a valid number.");
     }
 
@@ -79,7 +75,13 @@ export default class Book {
     this.totalCopies = totalCopies;
     this.availableCopies = totalCopies;
 
-    // Stores IDs of members currently borrowing the book
+    // Stores borrowing records for members currently borrowing the book
+    // Example:
+    // {
+    //   memberId: "M001",
+    //   borrowDate: "2026-07-16",
+    //   dueDate: "2026-07-30"
+    // }
     this.borrowedBy = [];
   }
 
@@ -98,9 +100,7 @@ export default class Book {
    * @returns {string}
    */
   getStatus() {
-    return this.isAvailable() 
-     ? "Available" 
-     : "Unavailable";
+    return this.isAvailable() ? "Available" : "Unavailable";
   }
 
   /**
@@ -118,7 +118,18 @@ export default class Book {
       return false;
     }
 
-    this.borrowedBy.push(memberId.trim());
+    const borrowDate = new Date();
+
+    const dueDate = new Date(borrowDate);
+
+    dueDate.setDate(dueDate.getDate() + 14);
+
+    this.borrowedBy.push({
+      memberId: memberId.trim(),
+      borrowDate: borrowDate.toISOString(),
+      dueDate: dueDate.toISOString(),
+    });
+
     this.availableCopies--;
 
     return true;
@@ -135,7 +146,9 @@ export default class Book {
       return false;
     }
 
-    const memberIndex = this.borrowedBy.indexOf(memberId.trim());
+    const memberIndex = this.borrowedBy.findIndex(
+      (record) => record.memberId === memberId.trim(),
+    );
 
     if (memberIndex === -1) {
       return false;
@@ -153,11 +166,7 @@ export default class Book {
    * @param {number} amount
    */
   addCopies(amount) {
-    if (
-      typeof amount !== "number" ||
-      Number.isNaN(amount) ||
-      amount < 1
-    ) {
+    if (typeof amount !== "number" || Number.isNaN(amount) || amount < 1) {
       throw new Error("Amount must be greater than zero.");
     }
 
@@ -166,16 +175,69 @@ export default class Book {
   }
 
   /**
+   * Returns the borrowing record for a member.
+   *
+   * @param {string} memberId
+   * @returns {Object|null}
+   */
+  getBorrowRecord(memberId) {
+    if (typeof memberId !== "string" || !memberId.trim()) {
+      return null;
+    }
+
+    return (
+      this.borrowedBy.find(
+        (record) => record.memberId === memberId.trim()
+      ) || null
+    );
+  }
+
+  /**
+   * Checks whether a borrowed book is overdue.
+   *
+   * @param {string} memberId
+   * @returns {boolean}
+   */
+  isOverdue(memberId) {
+    const record = this.getBorrowRecord(memberId);
+
+    if (!record) {
+      return false;
+    }
+
+    return new Date() > new Date(record.dueDate);
+  }
+
+  /**
+   * Returns the number of days remaining
+   * until the due date.
+   *
+   * @param {string} memberId
+   * @returns {number|null}
+   */
+  getRemainingDays(memberId) {
+    const record = this.getBorrowRecord(memberId);
+
+    if (!record) {
+      return null;
+    }
+
+    const today = new Date();
+
+    const dueDate = new Date(record.dueDate);
+
+    const milliseconds = dueDate - today;
+
+    return Math.ceil(milliseconds / (1000 * 60 * 60 * 24));
+  }
+
+  /**
    * Remove copies from the library.
    *
    * @param {number} amount
    */
   removeCopies(amount) {
-    if (
-      typeof amount !== "number" ||
-      Number.isNaN(amount) ||
-      amount < 1
-    ) {
+    if (typeof amount !== "number" || Number.isNaN(amount) || amount < 1) {
       throw new Error("Amount must be greater than zero.");
     }
 
@@ -216,7 +278,7 @@ export default class Book {
       totalCopies,
       availableCopies,
       coverImage,
-      borrowedBy
+      borrowedBy,
     } = this;
 
     return {
@@ -228,8 +290,10 @@ export default class Book {
       totalCopies,
       availableCopies,
       coverImage,
-      borrowedBy: [...borrowedBy],
-      status: this.getStatus()
+      borrowedBy: borrowedBy.map((record) => ({
+        ...record,
+      })),
+      status: this.getStatus(),
     };
   }
 

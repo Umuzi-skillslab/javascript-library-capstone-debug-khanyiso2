@@ -36,14 +36,17 @@ describe("Member Class", () => {
     const borrowed = member.borrowBook("ISBN001");
 
     expect(borrowed).toBe(true);
-    expect(member.borrowedBooks).toContain("ISBN001");
+    expect(member.borrowedBooks).toHaveLength(1);
+    expect(member.borrowedBooks[0].isbn).toBe("ISBN001");
+    expect(member.borrowedBooks[0]).toHaveProperty("borrowDate");
+    expect(member.borrowedBooks[0]).toHaveProperty("dueDate");
   });
 
   test("borrowBook prevents duplicate books", () => {
     member.borrowBook("ISBN001");
 
     expect(member.borrowBook("ISBN001")).toBe(false);
-    expect(member.borrowedBooks.length).toBe(1);
+    expect(member.borrowedBooks).toHaveLength(1);
   });
 
   test("returnBook removes a borrowed book", () => {
@@ -52,7 +55,7 @@ describe("Member Class", () => {
     const returned = member.returnBook("ISBN001");
 
     expect(returned).toBe(true);
-    expect(member.borrowedBooks).not.toContain("ISBN001");
+    expect(member.borrowedBooks).toHaveLength(0);
   });
 
   test("returnBook returns false for unknown ISBN", () => {
@@ -155,5 +158,115 @@ describe("Member Class", () => {
 
   test("returnBook returns false for empty ISBN", () => {
     expect(member.returnBook("")).toBe(false);
+  });
+
+    test("throws error for invalid first name", () => {
+    expect(() => {
+      new Member(
+        "M001",
+        "",
+        "Smith",
+        "john@email.com",
+        "0123456789"
+      );
+    }).toThrow("First name must be a non-empty string.");
+  });
+
+  test("throws error for invalid last name", () => {
+    expect(() => {
+      new Member(
+        "M001",
+        "John",
+        "",
+        "john@email.com",
+        "0123456789"
+      );
+    }).toThrow("Last name must be a non-empty string.");
+  });
+
+  test("throws error for invalid constructor email", () => {
+    expect(() => {
+      new Member(
+        "M001",
+        "John",
+        "Smith",
+        "invalid-email",
+        "0123456789"
+      );
+    }).toThrow("A valid email address is required.");
+  });
+
+  test("throws error for invalid constructor phone", () => {
+    expect(() => {
+      new Member(
+        "M001",
+        "John",
+        "Smith",
+        "john@email.com",
+        ""
+      );
+    }).toThrow("Phone number must be a non-empty string.");
+  });
+
+  test("throws error for invalid join date", () => {
+    expect(() => {
+      new Member(
+        "M001",
+        "John",
+        "Smith",
+        "john@email.com",
+        "0123456789",
+        "today"
+      );
+    }).toThrow("Join date must be a valid Date object.");
+  });
+
+  test("getBorrowedBook returns borrowed record", () => {
+    member.borrowBook("ISBN1");
+
+    const record = member.getBorrowedBook("ISBN1");
+
+    expect(record).not.toBeNull();
+    expect(record.isbn).toBe("ISBN1");
+  });
+
+  test("getBorrowedBook returns null when not found", () => {
+    expect(member.getBorrowedBook("UNKNOWN")).toBeNull();
+  });
+
+  test("isBookOverdue returns false when not overdue", () => {
+    member.borrowBook("ISBN1");
+
+    expect(member.isBookOverdue("ISBN1")).toBe(false);
+  });
+
+  test("isBookOverdue returns false when record does not exist", () => {
+    expect(member.isBookOverdue("ISBN1")).toBe(false);
+  });
+
+  test("getRemainingDays returns number for borrowed book", () => {
+    member.borrowBook("ISBN1");
+
+    expect(member.getRemainingDays("ISBN1")).toBeGreaterThan(0);
+  });
+
+  test("getRemainingDays returns null when no record exists", () => {
+    expect(member.getRemainingDays("ISBN1")).toBeNull();
+  });
+
+  test("getMembershipDurationText returns singular year", () => {
+    const joinDate = new Date();
+    joinDate.setFullYear(joinDate.getFullYear() - 1);
+
+    const m = new Member(
+      "M001",
+      "John",
+      "Smith",
+      "john@email.com",
+      "0123456789",
+      joinDate
+    );
+
+    expect(m.getMembershipDurationText()).toContain("year");
   });
 });

@@ -9,6 +9,8 @@ import DigitalBook from "../models/DigitalBook.js";
 let catalogueContainer;
 let searchInput;
 let filterDropdown;
+let currentPage = 1;
+const booksPerPage = 8;
 
 /**
  * Initializes the UI once the DOM has loaded.
@@ -24,8 +26,9 @@ function initializeUI() {
   }
 
   setupEventListeners();
-  createBookForm();
+  createMemberForm();
   loadCatalogue();
+  setupPagination();
 }
 
 /**
@@ -40,6 +43,12 @@ function setupEventListeners() {
     borrowForm.addEventListener("submit", handleBorrowSubmit);
   }
 
+  const returnButton = document.getElementById("return-btn");
+
+  if (returnButton) {
+     returnButton.addEventListener("click", handleReturnBook);
+    }
+
   // Event delegation
   catalogueContainer.addEventListener("click", handleBookClick);
   catalogueContainer.addEventListener("mouseout", handleBookMouseOut);
@@ -53,7 +62,19 @@ function setupEventListeners() {
   if (membersTab) membersTab.addEventListener("click", showMemberSection);
   if (statisticsTab) statisticsTab.addEventListener("click", showStatisticsSection);
 
+  const closeModal =
+  document.getElementById("close-modal");
+
+ if (closeModal) {
+   closeModal.addEventListener("click", () => {
+     document
+       .getElementById("book-modal")
+       .classList.add("hidden");
+   });
+  }
+
   window.addEventListener("resize", updateStatisticsDisplay);
+
 }
 
 /**
@@ -75,26 +96,64 @@ function renderBookCatalogue(bookList) {
 
   const fragment = document.createDocumentFragment();
 
-  bookList.forEach((book) => {
+  const start =
+    (currentPage - 1) * booksPerPage;
+
+  const end =
+    start + booksPerPage;
+
+  const booksToShow =
+    bookList.slice(start, end);
+
+booksToShow.forEach(book => {
     const bookCard = document.createElement("div");
     bookCard.className = "book-card";
     
     bookCard.dataset.isbn = book.isbn;
     const bookType = book instanceof DigitalBook ? "Digital" : "Physical";
 
-    bookCard.innerHTML = `
-      <img
-        src="${book.coverImage || 'images/default-book.jpg'}"
+  bookCard.innerHTML = `
+    <img
+        src="${book.coverImage || "./assets/books/default-book.jpg"}"
         alt="${book.title}"
         class="book-cover"
-      >
-      <h3>${book.title}</h3>
-      <p><strong>Author:</strong> ${book.author}</p>
-      <p><strong>Category:</strong> ${book.category}</p>
-      <p><strong>Published:</strong> ${book.year}</p>
-      <p><strong>Type:</strong> ${bookType}</p>
-      <p><strong>Available:</strong> ${book.availableCopies}/${book.totalCopies}</p>
-    `;
+    >
+
+    <div class="book-info">
+
+        <h3 class="book-title">
+            ${book.title}
+        </h3>
+
+        <p class="book-author">
+            ${book.author}
+        </p>
+
+        <p class="book-category">
+            ${book.category}
+        </p>
+
+        <p class="book-type">
+            ${bookType}
+        </p>
+
+        <p class="book-status">
+            ${
+              book.availableCopies > 0
+                ? "✅ Available"
+                : "❌ Borrowed Out"
+            }
+        </p>
+
+        <button
+            class="details-btn"
+            data-isbn="${book.isbn}"
+        >
+            View Details
+        </button>
+
+    </div>
+`;
 
     fragment.appendChild(bookCard);
   });
@@ -126,7 +185,7 @@ function handleBorrowSubmit(event) {
   }
 
   try {
-    const success = borrowBook(memberId, isbn);
+    const success = window.borrowBook(memberId, isbn);
 
     if (success) {
       alert("Book borrowed successfully.");
@@ -141,21 +200,48 @@ function handleBorrowSubmit(event) {
   }
 }
 
+function handleReturnBook() {
+  const memberId =
+    document.getElementById("member-id").value.trim();
+
+  const isbn =
+    document.getElementById("isbn").value.trim();
+
+  if (!memberId || !isbn) {
+    alert("Please complete all fields.");
+    return;
+  }
+
+  const success =
+    returnBook(memberId, isbn);
+
+  if (success) {
+    alert("Book returned successfully.");
+    loadCatalogue();
+
+    document
+      .getElementById("borrow-form")
+      .reset();
+  } else {
+    alert("Unable to return the book.");
+  }
+}
+
 /**
  * Handles clicks on book cards.
  *
  * @param {Event} event
  */
 function handleBookClick(event) {
-  const card = event.target.closest(".book-card");
-  if (!card) {
+
+  const button = event.target.closest(".details-btn");
+
+  if (!button) {
     return;
   }
 
-  const { isbn } = card.dataset;
-  if (isbn) {
-    displayBookDetails(isbn);
-  }
+  displayBookDetails(button.dataset.isbn);
+
 }
 
 /**
@@ -167,38 +253,69 @@ function handleSearch(event) {
   const searchTerm = event.target.value.trim();
 
   if (!searchTerm) {
+
+    currentPage = 1;
+
     renderBookCatalogue(getAllBooks());
+
+    const page = document.getElementById("page-number");
+
+    if (page) {
+      page.textContent = `Page ${currentPage}`;
+    }
+
     return;
+
   }
 
   const search = searchTerm.toLowerCase();
-  const results = getAllBooks().filter((book) =>
+  const results = window.getAllBooks().filter((book) =>
     book.title.toLowerCase().includes(search) ||
     book.author.toLowerCase().includes(search) ||
     book.category.toLowerCase().includes(search) ||
     book.isbn.toLowerCase().includes(search)
   );
+  currentPage = 1;
 
   renderBookCatalogue(results);
+  const page = document.getElementById("page-number");
+
+  if (page) {
+    page.textContent = `Page ${currentPage}`;
+  }
+  
 }
 
 /**
  * Filters books by category.
  */
 function handleFilterChange() {
+  currentPage = 1;
   const selectedCategory = filterDropdown.value;
   const category = selectedCategory.trim().toLowerCase();
+ 
+ if (category === "all") {
 
-  if (category === "all") {
-    renderBookCatalogue(getAllBooks());
-    return;
-  }
+   renderBookCatalogue(window.getAllBooks());
+   const page = document.getElementById("page-number");
 
-  const filtered = getAllBooks().filter(
+   if (page) {
+     page.textContent = `Page ${currentPage}`;
+    }
+   return;
+
+ }
+
+  const filtered = window.getAllBooks().filter(
     (book) => book.category.trim().toLowerCase() === category
   );
 
   renderBookCatalogue(filtered);
+  const page = document.getElementById("page-number");
+
+  if (page) {
+    page.textContent = `Page ${currentPage}`;
+  }
 }
 
 /**
@@ -207,32 +324,37 @@ function handleFilterChange() {
  * @param {string} isbn
  */
 function displayBookDetails(isbn) {
-  if (typeof isbn !== "string" || !isbn.trim()) {
-    return;
-  }
 
-  const book = findBookByISBN(isbn);
-  if (!book) {
-    console.error("Book not found.");
-    return;
-  }
+    const book = window.findBookByISBN(isbn);
 
-  const detailsContainer = document.getElementById("book-details");
-  if (!detailsContainer) {
-    return;
-  }
+    if (!book) return;
 
-  detailsContainer.innerHTML = `
-    <div class="book-details">
-      <h2>${book.title}</h2>
-      <p><strong>Author:</strong> ${book.author}</p>
-      <p><strong>ISBN:</strong> ${book.isbn}</p>
-      <p><strong>Year:</strong> ${book.year}</p>
-      <p><strong>Category:</strong> ${book.category}</p>
-      <p><strong>Type:</strong> ${book instanceof DigitalBook ? "Digital" : "Physical"}</p>
-      <p><strong>Available Copies:</strong> ${book.availableCopies} / ${book.totalCopies ?? book.availableCopies}</p>
-    </div>
-  `;
+    const modal = document.getElementById("book-modal");
+    const modalContent = document.getElementById("modal-content");
+
+    modalContent.innerHTML = `
+        <img src="${book.coverImage}" class="book-details-cover">
+
+        <h2>${book.title}</h2>
+
+        <p><strong>Author:</strong> ${book.author}</p>
+
+        <p><strong>Category:</strong> ${book.category}</p>
+
+        <p><strong>Year:</strong> ${book.year}</p>
+
+        <p><strong>ISBN:</strong> ${book.isbn}</p>
+
+        <p><strong>Copies:</strong>
+        ${book.availableCopies}/${book.totalCopies}
+        </p>
+
+        <button class="borrow-btn">Borrow</button>
+
+        <button class="return-btn">Return</button>
+    `;
+
+    modal.classList.remove("hidden");
 }
 
 /**
@@ -261,237 +383,131 @@ if (availableBooksEl) {
 }
 }
 
-/**
- * Creates the member registration form and hooks up registration logic.
- */
 function createMemberForm() {
   const formContainer = document.getElementById("member-form");
+
   if (!formContainer) {
     return;
   }
 
   formContainer.innerHTML = "";
+
   const form = document.createElement("form");
-  form.id = "new-member-form";
 
   form.innerHTML = `
-    <label for="member-id">Member ID</label>
-    <input type="text" id="member-id" placeholder="e.g. M004" required>
+    <label for="new-member-id">Member ID</label>
+    <input type="text" id="new-member-id" required>
+
     <label for="first-name">First Name</label>
     <input type="text" id="first-name" required>
+
     <label for="last-name">Last Name</label>
     <input type="text" id="last-name" required>
+
     <label for="email">Email</label>
     <input type="email" id="email" required>
+
     <label for="phone">Phone</label>
     <input type="text" id="phone" required>
+
     <button type="submit">Add Member</button>
   `;
 
-  form.addEventListener("submit", (event) => {
-    event.preventDefault();
-
-    const memberId = document.getElementById("member-id").value.trim();
-    const firstName = document.getElementById("first-name").value.trim();
-    const lastName = document.getElementById("last-name").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const phone = document.getElementById("phone").value.trim();
-
-    try {
-      const member = new Member(memberId, firstName, lastName, email, phone);
-
-      const added = window.addMember(member);
-      if (!added) {
-        alert("Member with this ID already exists.");
-        return;
-      }
-
-      form.reset();
-      updateStatisticsDisplay();
-      alert("Member added successfully!");
-    } catch (error) {
-      alert(error.message);
-    }
-  });
-
   formContainer.appendChild(form);
+
+  form.addEventListener("submit", (event) => {
+  event.preventDefault();
+
+  const member = new Member(
+    document.getElementById("new-member-id").value,
+    document.getElementById("first-name").value,
+    document.getElementById("last-name").value,
+    document.getElementById("email").value,
+    document.getElementById("phone").value
+  );
+
+  const success = window.addMember(member);
+
+  if (success) {
+    alert("Member added successfully.");
+    form.reset();
+  } else {
+    alert("Member already exists.");
+  }
+});
 }
 
-function createBookForm() {
-  const formContainer =
-    document.getElementById("book-form");
+function setupPagination() {
 
-  if (!formContainer) {
+  const previous =
+    document.getElementById("previous-page");
+
+  const next =
+    document.getElementById("next-page");
+
+  const pageNumber =
+    document.getElementById("page-number");
+
+  if (!previous || !next || !pageNumber) {
     return;
   }
 
-  formContainer.innerHTML = "";
+  previous.addEventListener("click", () => {
 
-  const form =
-    document.createElement("form");
+    if (currentPage > 1) {
 
-  form.id = "new-book-form";
-
-  form.innerHTML = `
-    <label>ISBN</label>
-    <input
-      type="text"
-      id="book-isbn"
-      required
-    >
-
-    <label>Title</label>
-    <input
-      type="text"
-      id="book-title"
-      required
-    >
-
-    <label>Author</label>
-    <input
-      type="text"
-      id="book-author"
-      required
-    >
-
-    <label>Year</label>
-    <input
-      type="number"
-      id="book-year"
-      required
-    >
-
-    <label>Copies</label>
-    <input
-      type="number"
-      id="book-copies"
-      value="1"
-      required
-    >
-
-    <label>Category</label>
-    <input
-      type="text"
-      id="book-category"
-      value="General"
-    >
-
-    <label>Cover Image</label>
-    <input
-      type="text"
-      id="book-image"
-      placeholder="./assets/books/example.jpg"
-    >
-
-    <label>Book Type</label>
-    <select id="book-type">
-      <option value="physical">
-        Physical
-      </option>
-
-      <option value="digital">
-        Digital
-      </option>
-    </select>
-
-    <button type="submit">
-      Add Book
-    </button>
-  `;
-    form.addEventListener(
-    "submit",
-    (event) => {
-
-      event.preventDefault();
-
-      const isbn =
-        document.getElementById("book-isbn").value.trim();
-
-      const title =
-        document.getElementById("book-title").value.trim();
-
-      const author =
-        document.getElementById("book-author").value.trim();
-
-      const year =
-        Number(
-          document.getElementById("book-year").value
-        );
-
-      const copies =
-        Number(
-          document.getElementById("book-copies").value
-        );
-
-      const category =
-        document.getElementById("book-category").value.trim();
-
-      const image =
-        document.getElementById("book-image").value.trim();
-
-      const type =
-        document.getElementById("book-type").value;
-
-      let book;
-
-      if (type === "digital") {
-
-        book = new DigitalBook(
-          isbn,
-          title,
-          author,
-          year,
-          copies,
-          category,
-          image,
-          "PDF",
-          0
-        );
-
-      } else {
-
-        book = new Book(
-          isbn,
-          title,
-          author,
-          year,
-          copies,
-          category,
-          image
-        );
-
-      }
-
-      const added =
-        window.addBook(book);
-
-      if (!added) {
-        alert(
-          "Book already exists."
-        );
-
-        return;
-      }
-
-      form.reset();
+      currentPage--;
 
       loadCatalogue();
 
-      alert(
-        "Book added successfully!"
-      );
     }
-  );
 
-  formContainer.appendChild(form);
+  });
+
+  next.addEventListener("click", () => {
+
+    const totalPages =
+      Math.ceil(
+        window.getAllBooks().length / booksPerPage
+      );
+
+    if (currentPage < totalPages) {
+
+      currentPage++;
+
+      loadCatalogue();
+
+    }
+
+  });
+
+  pageNumber.textContent =
+    `Page ${currentPage}`;
+
 }
 
 /**
  * Loads the catalogue and updates the statistics.
  */
 function loadCatalogue() {
-  renderBookCatalogue(getAllBooks());
+
+  const books =
+    window.getAllBooks();
+
+  renderBookCatalogue(books);
+
   updateStatisticsDisplay();
+
+  const page =
+    document.getElementById("page-number");
+
+  if (page) {
+
+    page.textContent =
+      `Page ${currentPage}`;
+
+  }
+
 }
 
 function handleBookHover(event) {
